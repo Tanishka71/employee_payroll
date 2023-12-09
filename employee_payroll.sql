@@ -47,3 +47,8 @@ UPDATE employee_payroll SET gender='M' WHERE
 SELECT MIN(salary) FROM employee_payroll 
   WHERE gender='M' GROUP BY gender;
   
+   #<-----------USE CASE 8------------->
+  ALTER TABLE employee_payroll ADD phoneNumber INT NOT NULL AFTER name;
+  ALTER TABLE employee_payroll ADD adDress VARCHAR(500) DEFAULT "mumbai" AFTER phoneNumber;
+  ALTER TABLE employee_payroll CHANGE COLUMN adDress address VARCHAR(500);
+   ALTER TABLE employee_payroll ADD department VARCHAR(100) NOT NULL
