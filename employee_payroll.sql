@@ -12,3 +12,13 @@ salary Double NOT NULL,
 start DATE NOT NULL,
 PRIMARY KEY (id)
 );
+
+#<-----------USE CASE 3------------->
+INSERT INTO employee_payroll (id,name,salary,start) VALUES
+(1,"Tanishka",1000, '2024-01-08');
+INSERT INTO employee_payroll (name,salary,start) VALUES
+("Priyanka",1000, '2024-01-08');
+INSERT INTO employee_payroll (name,salary,start) VALUES
+("aryaman",50, '2024-01-10');
+INSERT INTO employee_payroll (name,salary,start) VALUES
+("namam",50, '2018-01-10');
