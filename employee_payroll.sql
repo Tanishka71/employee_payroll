@@ -65,3 +65,8 @@ SELECT MIN(salary) FROM employee_payroll
    AFTER taxablePay;
   ALTER TABLE employee_payroll ADD netPay DOUBLE
    AFTER incomeTax;
+   
+ #<-----------USE CASE 10------------->
+   INSERT INTO employee_payroll (name,phoneNumber,address,department,gender,basicPay,deductions,taxablePay,incomeTax,netPay,salary,start) VALUES
+   ('terissa',87283727,'lko','sales','F',10000,50,220,20,8000,99999,'2020-01-30');
+   ALTER TABLE employee_payroll DROP salary;
