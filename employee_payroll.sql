@@ -52,3 +52,16 @@ SELECT MIN(salary) FROM employee_payroll
   ALTER TABLE employee_payroll ADD adDress VARCHAR(500) DEFAULT "mumbai" AFTER phoneNumber;
   ALTER TABLE employee_payroll CHANGE COLUMN adDress address VARCHAR(500);
    ALTER TABLE employee_payroll ADD department VARCHAR(100) NOT NULL
+    AFTER address;
+    
+   #<-----------USE CASE 9------------->
+	ALTER TABLE employee_payroll ADD basicPay DOUBLE
+   AFTER gender;
+   ALTER TABLE employee_payroll ADD deductions DOUBLE
+   AFTER basicPay;
+   ALTER TABLE employee_payroll ADD taxablePay DOUBLE
+   AFTER deductions;
+   ALTER TABLE employee_payroll ADD incomeTax DOUBLE
+   AFTER taxablePay;
+  ALTER TABLE employee_payroll ADD netPay DOUBLE
+   AFTER incomeTax;
