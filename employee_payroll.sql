@@ -40,3 +40,10 @@ UPDATE employee_payroll SET gender='M' WHERE
  name='aryaman' OR name='namam';
    UPDATE employee_payroll SET gender='F' WHERE
  name='tanishka' OR name='priyanka';
+ 
+  #<-----------USE CASE 7------------->
+  SELECT SUM(salary) FROM employee_payroll 
+  WHERE gender='F' GROUP BY gender;
+SELECT MIN(salary) FROM employee_payroll 
+  WHERE gender='M' GROUP BY gender;
+  
