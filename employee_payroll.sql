@@ -32,3 +32,11 @@ SELECT * FROM employee_payroll WHERE
 salary=1000;
 SELECT * FROM employee_payroll WHERE
  start BETWEEN CAST('2015-12-31' AS DATE) AND DATE (NOW());
+ 
+  #<-----------USE CASE 6------------->
+ ALTER TABLE employee_payroll ADD gender VARCHAR(1) AFTER name;
+ SET SQL_SAFE_UPDATES = 0;
+UPDATE employee_payroll SET gender='M' WHERE
+ name='aryaman' OR name='namam';
+   UPDATE employee_payroll SET gender='F' WHERE
+ name='tanishka' OR name='priyanka';
