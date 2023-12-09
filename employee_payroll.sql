@@ -22,3 +22,7 @@ INSERT INTO employee_payroll (name,salary,start) VALUES
 ("aryaman",50, '2024-01-10');
 INSERT INTO employee_payroll (name,salary,start) VALUES
 ("namam",50, '2018-01-10');
+
+
+#<-----------USE CASE 4------------->
+ SELECT * FROM employee_payroll;
