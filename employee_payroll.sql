@@ -26,3 +26,9 @@ INSERT INTO employee_payroll (name,salary,start) VALUES
 
 #<-----------USE CASE 4------------->
  SELECT * FROM employee_payroll;
+ 
+  #<-----------USE CASE 5------------->
+SELECT * FROM employee_payroll WHERE
+salary=1000;
+SELECT * FROM employee_payroll WHERE
+ start BETWEEN CAST('2015-12-31' AS DATE) AND DATE (NOW());
