@@ -67,3 +67,95 @@ SELECT MIN(salary) FROM employee_payroll
    INSERT INTO employee_payroll (name,phoneNumber,address,department,gender,basicPay,deductions,taxablePay,incomeTax,netPay,salary,start) VALUES
    ('terissa',87283727,'lko','sales','F',10000,50,220,20,8000,99999,'2020-01-30');
    ALTER TABLE employee_payroll DROP salary;
+   
+    
+   #<---------USE CASE 10 USING ER DIAGRAM--------->
+   -- Create EMPLOYEE table
+CREATE TABLE EMPLOYEE (
+    emp_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    phoneNumber VARCHAR(15),
+    address VARCHAR(100),
+    gender CHAR(1),
+    startDate DATE,
+    dept_id INT,
+    comp_id INT,
+    FOREIGN KEY (dept_id) REFERENCES DEPARTMENT(dept_id),
+    FOREIGN KEY (comp_id) REFERENCES COMPANY(comp_id)
+);
+
+-- Insert sample data into EMPLOYEE table
+INSERT INTO EMPLOYEE (emp_id, name, phoneNumber, address, gender, startDate, dept_id, comp_id) VALUES
+(1, 'tanishka', '98765430', 'lko', 'F', '2020-01-08', 201, 1),
+(2, 'john', '88765430', 'uk', 'M', '2021-01-08', 301, 1),
+(3, 'bob', '78765430', 'us', 'M', '2021-01-10', 401, 1),
+(4, 'ria', '79965430', 'del', 'F', '2023-01-10', 501, 1);
+SELECT * FROM employee;
+DESC employee;
+
+-- Create DEPARTMENT table
+CREATE TABLE DEPARTMENT (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50),
+    emp_id INT,
+    FOREIGN KEY (emp_id) REFERENCES EMPLOYEE(emp_id)
+);
+
+-- Insert sample data into DEPARTMENT table
+INSERT INTO DEPARTMENT (dept_id, dept_name, emp_id) VALUES
+(201, 'TECH', 1),
+(301, 'SALES', 2),
+(401, 'CONTENT', 3),
+(501, 'HR', 4);
+SELECT * FROM department;
+DESC department;
+
+
+-- Create PAYROLL table
+CREATE TABLE PAYROLL (
+    payroll_id INT PRIMARY KEY,
+    emp_id INT,
+    basicPay DOUBLE,
+    deductions DOUBLE,
+    taxablePay DOUBLE,
+    incomeTax DOUBLE,
+    netPay DOUBLE,
+    FOREIGN KEY (emp_id) REFERENCES EMPLOYEE(emp_id)
+);
+
+-- Insert sample data into PAYROLL table
+INSERT INTO PAYROLL (payroll_id, emp_id, basicPay, deductions, taxablePay, incomeTax, netPay) VALUES
+(1, 1, 10000.0, 100.0, 100.0, 500.0, 150.0),
+(2, 2, 20000.0, 100.0, 100.0, 500.0, 150.0),
+(3, 3, 30000.0, 100.0, 100.0, 500.0, 150.0),
+(4, 4, 10000.0, 100.0, 100.0, 500.0, 150.0);
+SELECT * FROM payroll;
+DESC payroll;
+
+-- Create COMPANY table
+CREATE TABLE COMPANY (
+    comp_id INT PRIMARY KEY,
+    comp_name VARCHAR(100)
+);
+
+-- Insert data into COMPANY table
+INSERT INTO COMPANY (comp_id, comp_name) VALUES
+(1, 'GE');
+SELECT * FROM company;
+DESC company;
+
+#<--------USE CASE 11------>
+SELECT SUM(basicPay) FROM payroll
+JOIN employee ON employee.emp_id=payroll.emp_id;
+
+#<-------USE CASE 12------->
+SELECT * FROM employee;
+SELECT * FROM department;
+SELECT * FROM payroll;
+SELECT * FROM company;
+SELECT dept_name FROM department
+WHERE emp_id=
+(SELECT emp_id FROM employee WHERE name="tanishka");
+
+SELECT emp_id,name,gender,company.comp_name FROM employee 
+JOIN company ON company.comp_id=employee.comp_id;
