@@ -145,3 +145,19 @@ SELECT * FROM company;
 DESC company;
 
 
+#<--------USE CASE 11------>
+SELECT SUM(basicPay) FROM payroll
+JOIN employee ON employee.emp_id=payroll.emp_id;
+
+#<-------USE CASE 12------->
+SELECT * FROM employee;
+SELECT * FROM department;
+SELECT * FROM payroll;
+SELECT * FROM company;
+SELECT dept_name FROM department
+WHERE emp_id=
+(SELECT emp_id FROM employee WHERE name="tanishka");
+
+SELECT emp_id,name,gender,company.comp_name FROM employee 
+JOIN company ON company.comp_id=employee.comp_id;
+
