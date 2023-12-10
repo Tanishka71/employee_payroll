@@ -143,3 +143,5 @@ INSERT INTO COMPANY (comp_id, comp_name) VALUES
 (1, 'GE');
 SELECT * FROM company;
 DESC company;
+
+
