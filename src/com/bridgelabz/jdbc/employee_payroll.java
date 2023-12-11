@@ -9,6 +9,7 @@ package com.bridgelabz.jdbc;
 	6.PROCESS THE QUERY
 	7.CLOSE()*/
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +42,7 @@ public class employee_payroll {
      * @params: None
      * @return: EmployeePayrollDBService - The singleton instance
      */
-    public static employee_payroll getInstance() {
+    public static synchronized employee_payroll getInstance() {
         if (instance == null) {
             instance = new employee_payroll();
         }
@@ -49,12 +50,16 @@ public class employee_payroll {
     }
     /**
      * @desc: Gets a PreparedStatement for the specified SQL query.
-     *        Caches and reuses PreparedStatement instances.
+     * Caches and reuses PreparedStatement instances.
      * @params: query - The SQL query
      * @return: PreparedStatement - The prepared statement for the query
      * @throws SQLException if there is an error creating or retrieving the PreparedStatement.
      */
-    public PreparedStatement getPreparedStatement(String query) throws SQLException {
+    public static PreparedStatement getPreparedStatement(String query) throws SQLException {
+        if (connection == null || connection.isClosed()) {
+            throw new SQLException("Connection is null or closed. Make sure to call getInstance() first.");
+        }
+
         if (preparedStatements.containsKey(query)) {
             return preparedStatements.get(query);
         } else {
@@ -63,6 +68,7 @@ public class employee_payroll {
             return preparedStatement;
         }
     }
+    //<--------------------USE CASE 2------------------------>
     /**
      * @desc: Retrieves employee payroll data by name from the database.
      * @params: employeeName - Name of the employee
@@ -94,27 +100,40 @@ public class employee_payroll {
         }
         return employeePayrollList;
     }
+  //<--------------------USE CASE 5------------------------>
     /**
-     * @desc: Main method to retrieve and update employee payroll data.
-     * @params: None
-     * @return: None
+     * @desc: Retrieves employees who have joined in a particular date range from the database.
+     * @params: startDate - Start date of the range, endDate - End date of the range
+     * @return: List<EmployeePayroll> - List of EmployeePayroll objects
+     * @throws CustomDatabaseException if there is an error retrieving data from the database.
      */
-    public static void main(String[] args) {
+    public static List<EmployeePayroll> retrieveEmployeesByDateRange(LocalDate startDate, LocalDate endDate) throws CustomDatabaseException {
+        List<EmployeePayroll> employeePayrollList = new ArrayList<>();
         try {
-            List<EmployeePayroll> employeePayrollList = retrieveEmployeePayroll();
-            System.out.println("Employee Payroll Data Before Update:");
-            displayEmployeePayroll(employeePayrollList);
+            String sqlQuery = "SELECT * FROM employee WHERE startDate BETWEEN ? AND ?";
+            PreparedStatement preparedStatement = getPreparedStatement(sqlQuery);
+            preparedStatement.setDate(1, Date.valueOf(startDate));
+            preparedStatement.setDate(2, Date.valueOf(endDate));
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-            updateEmployeeSalary("tanishka", 3000000.00);
-
-            List<EmployeePayroll> updatedEmployeePayrollList = retrieveEmployeePayroll();
-            System.out.println("Employee Payroll Data After Update:");
-            displayEmployeePayroll(updatedEmployeePayrollList);
-
-        } catch (CustomDatabaseException e) {
-            e.printStackTrace();
+            while (resultSet.next()) {
+                EmployeePayroll employeePayroll = new EmployeePayroll();
+                employeePayroll.setEmpId(resultSet.getInt("emp_id"));
+                employeePayroll.setName(resultSet.getString("name"));
+                employeePayroll.setPhoneNumber(resultSet.getString("phoneNumber"));
+                employeePayroll.setAddress(resultSet.getString("address"));
+                employeePayroll.setGender(resultSet.getString("gender"));
+                employeePayroll.setStartDate(resultSet.getDate("startDate").toLocalDate());
+                employeePayroll.setDeptId(resultSet.getInt("dept_id"));
+                employeePayroll.setCompId(resultSet.getInt("comp_id"));
+                employeePayrollList.add(employeePayroll);
+            }
+        } catch (SQLException e) {
+            throw new CustomDatabaseException("Error retrieving employee payroll data by date range", e);
         }
+        return employeePayrollList;
     }
+  //<--------------------USE CASE 2------------------------>
     /**
      * @desc: Retrieves employee payroll data from the database.
      * @params: None
@@ -146,6 +165,7 @@ public class employee_payroll {
         }
         return employeePayrollList;
     }
+  //<--------------------USE CASE 4------------------------>
     /**
      * @desc: Updates the basicPay in the payroll table for the specified employee.
      * @params: employeeName - Name of the employee, newSalary - New basicPay value
@@ -190,4 +210,35 @@ public class employee_payroll {
             System.out.println("------------------------");
         }
     }
-}
+    /**
+     * @desc: Main method to retrieve and update employee payroll data.
+     * @params: None
+     * @return: None
+     */
+    public static void main(String[] args) {
+    	 try {
+    	        // Retrieve and display all employee payroll data
+    	        List<EmployeePayroll> allEmployeePayroll = retrieveEmployeePayroll();
+    	        System.out.println("All Employee Payroll Data:");
+    	        displayEmployeePayroll(allEmployeePayroll);
+
+    	        // Update salary for an employee
+    	        updateEmployeeSalary("tanishka", 3000000.00);
+    	        System.out.println("Employee Salary Updated for Tanishka");
+
+    	        // Retrieve and display updated employee payroll data
+    	        List<EmployeePayroll> updatedEmployeePayroll = retrieveEmployeePayroll();
+    	        System.out.println("Updated Employee Payroll Data:");
+    	        displayEmployeePayroll(updatedEmployeePayroll);
+
+    	        // Retrieve and display employees by date range
+    	        LocalDate startDate = LocalDate.of(2023, 1, 1);
+    	        LocalDate endDate = LocalDate.of(2023, 12, 31);
+    	        List<EmployeePayroll> employeesByDateRange = retrieveEmployeesByDateRange(startDate, endDate);
+    	        System.out.println("Employee Payroll Data for Date Range (2020-01-01 to 2023-12-31):");
+    	        displayEmployeePayroll(employeesByDateRange);
+
+    	    } catch (CustomDatabaseException e) {
+    	        e.printStackTrace();
+    	    }
+}}
