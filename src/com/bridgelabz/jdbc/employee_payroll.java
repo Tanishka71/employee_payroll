@@ -10,7 +10,9 @@ package com.bridgelabz.jdbc;
 	7.CLOSE()*/
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @desc: Main class for retrieving and processing employee payroll data from the database.
@@ -20,6 +22,78 @@ public class employee_payroll {
     private static final String JDBC_URL = "jdbc:mysql://localhost:3306/payroll_service";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "tanishka13";
+    private static final Map<String, PreparedStatement> preparedStatements = new HashMap<>();
+
+    private static Connection connection;
+
+    private static employee_payroll instance;
+
+    private employee_payroll() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            connection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * @desc: Gets the singleton instance of the EmployeePayrollDBService.
+     * @params: None
+     * @return: EmployeePayrollDBService - The singleton instance
+     */
+    public static employee_payroll getInstance() {
+        if (instance == null) {
+            instance = new employee_payroll();
+        }
+        return instance;
+    }
+    /**
+     * @desc: Gets a PreparedStatement for the specified SQL query.
+     *        Caches and reuses PreparedStatement instances.
+     * @params: query - The SQL query
+     * @return: PreparedStatement - The prepared statement for the query
+     * @throws SQLException if there is an error creating or retrieving the PreparedStatement.
+     */
+    public PreparedStatement getPreparedStatement(String query) throws SQLException {
+        if (preparedStatements.containsKey(query)) {
+            return preparedStatements.get(query);
+        } else {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatements.put(query, preparedStatement);
+            return preparedStatement;
+        }
+    }
+    /**
+     * @desc: Retrieves employee payroll data by name from the database.
+     * @params: employeeName - Name of the employee
+     * @return: List<EmployeePayroll> - List of EmployeePayroll objects
+     * @throws CustomDatabaseException if there is an error retrieving data from the database.
+     */
+    public List<EmployeePayroll> retrieveEmployeePayrollByName(String employeeName) throws CustomDatabaseException {
+        List<EmployeePayroll> employeePayrollList = new ArrayList<>();
+        try {
+            String sqlQuery = "SELECT * FROM employee WHERE name = ?";
+            PreparedStatement preparedStatement = getPreparedStatement(sqlQuery);
+            preparedStatement.setString(1, employeeName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                EmployeePayroll employeePayroll = new EmployeePayroll();
+                employeePayroll.setEmpId(resultSet.getInt("emp_id"));
+                employeePayroll.setName(resultSet.getString("name"));
+                employeePayroll.setPhoneNumber(resultSet.getString("phoneNumber"));
+                employeePayroll.setAddress(resultSet.getString("address"));
+                employeePayroll.setGender(resultSet.getString("gender"));
+                employeePayroll.setStartDate(resultSet.getDate("startDate").toLocalDate());
+                employeePayroll.setDeptId(resultSet.getInt("dept_id"));
+                employeePayroll.setCompId(resultSet.getInt("comp_id"));
+                employeePayrollList.add(employeePayroll);
+            }
+        } catch (SQLException e) {
+            throw new CustomDatabaseException("Error retrieving employee payroll data by name", e);
+        }
+        return employeePayrollList;
+    }
     /**
      * @desc: Main method to retrieve and update employee payroll data.
      * @params: None
