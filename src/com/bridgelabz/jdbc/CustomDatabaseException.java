@@ -2,7 +2,6 @@ package com.bridgelabz.jdbc;
 /**
  * @desc: Custom exception class for database-related errors.
  */
-@SuppressWarnings("serial")
 public class CustomDatabaseException extends Exception {
     
     /**

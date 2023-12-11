@@ -142,4 +142,12 @@ public class EmployeePayroll {
     public void setCompId(int compId) {
         this.compId = compId;
     }
+    /**
+     * @desc: Gets the employee salary
+     * @return: The employee salary
+     */
+    public double getSalary() {
+        // Implement logic to calculate salary based on basicPay or other factors if needed
+        return 0.0;
+    }
 }
