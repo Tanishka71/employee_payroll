@@ -100,39 +100,7 @@ public class employee_payroll {
         }
         return employeePayrollList;
     }
-  //<--------------------USE CASE 5------------------------>
-    /**
-     * @desc: Retrieves employees who have joined in a particular date range from the database.
-     * @params: startDate - Start date of the range, endDate - End date of the range
-     * @return: List<EmployeePayroll> - List of EmployeePayroll objects
-     * @throws CustomDatabaseException if there is an error retrieving data from the database.
-     */
-    public static List<EmployeePayroll> retrieveEmployeesByDateRange(LocalDate startDate, LocalDate endDate) throws CustomDatabaseException {
-        List<EmployeePayroll> employeePayrollList = new ArrayList<>();
-        try {
-            String sqlQuery = "SELECT * FROM employee WHERE startDate BETWEEN ? AND ?";
-            PreparedStatement preparedStatement = getPreparedStatement(sqlQuery);
-            preparedStatement.setDate(1, Date.valueOf(startDate));
-            preparedStatement.setDate(2, Date.valueOf(endDate));
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            while (resultSet.next()) {
-                EmployeePayroll employeePayroll = new EmployeePayroll();
-                employeePayroll.setEmpId(resultSet.getInt("emp_id"));
-                employeePayroll.setName(resultSet.getString("name"));
-                employeePayroll.setPhoneNumber(resultSet.getString("phoneNumber"));
-                employeePayroll.setAddress(resultSet.getString("address"));
-                employeePayroll.setGender(resultSet.getString("gender"));
-                employeePayroll.setStartDate(resultSet.getDate("startDate").toLocalDate());
-                employeePayroll.setDeptId(resultSet.getInt("dept_id"));
-                employeePayroll.setCompId(resultSet.getInt("comp_id"));
-                employeePayrollList.add(employeePayroll);
-            }
-        } catch (SQLException e) {
-            throw new CustomDatabaseException("Error retrieving employee payroll data by date range", e);
-        }
-        return employeePayrollList;
-    }
+ 
   //<--------------------USE CASE 2------------------------>
     /**
      * @desc: Retrieves employee payroll data from the database.
@@ -192,6 +160,83 @@ public class employee_payroll {
             throw new CustomDatabaseException("Error updating employee salary", e);
         }
     }
+    //<--------------------USE CASE 5------------------------>
+    /**
+     * @desc: Retrieves employees who have joined in a particular date range from the database.
+     * @params: startDate - Start date of the range, endDate - End date of the range
+     * @return: List<EmployeePayroll> - List of EmployeePayroll objects
+     * @throws CustomDatabaseException if there is an error retrieving data from the database.
+     */
+//    public static List<EmployeePayroll> retrieveEmployeesByDateRange(LocalDate startDate, LocalDate endDate) throws CustomDatabaseException {
+//        List<EmployeePayroll> employeePayrollList = new ArrayList<>();
+//        try {
+//            String sqlQuery = "SELECT * FROM employee WHERE startDate BETWEEN ? AND ?";
+//            PreparedStatement preparedStatement = getPreparedStatement(sqlQuery);
+//            preparedStatement.setDate(1, Date.valueOf(startDate));
+//            preparedStatement.setDate(2, Date.valueOf(endDate));
+//            ResultSet resultSet = preparedStatement.executeQuery();
+//
+//            while (resultSet.next()) {
+//                EmployeePayroll employeePayroll = new EmployeePayroll();
+//                employeePayroll.setEmpId(resultSet.getInt("emp_id"));
+//                employeePayroll.setName(resultSet.getString("name"));
+//                employeePayroll.setPhoneNumber(resultSet.getString("phoneNumber"));
+//                employeePayroll.setAddress(resultSet.getString("address"));
+//                employeePayroll.setGender(resultSet.getString("gender"));
+//                employeePayroll.setStartDate(resultSet.getDate("startDate").toLocalDate());
+//                employeePayroll.setDeptId(resultSet.getInt("dept_id"));
+//                employeePayroll.setCompId(resultSet.getInt("comp_id"));
+//                employeePayrollList.add(employeePayroll);
+//            }
+//        } catch (SQLException e) {
+//            throw new CustomDatabaseException("Error retrieving employee payroll data by date range", e);
+//        }
+//        return employeePayrollList;
+//    }
+   
+    //<----------------------USE CASE 6-------------------->
+    /**
+     * @desc: Retrieves the sum, average, min, max, and count of basicPay for male and female employees.
+     * @return: Map<String, Double> - A map containing results for each gender
+     * @throws CustomDatabaseException if there is an error retrieving data from the database.
+     */
+    public static Map<String, Double> analyzeEmployeePayroll() throws CustomDatabaseException {
+        Map<String, Double> analysisResults = new HashMap<>();
+
+        try {
+            String sqlQuery = "SELECT gender, SUM(salary) AS totalSalary, AVG(salary) AS avgSalary, MIN(salary) AS minSalary, MAX(salary) AS maxSalary, COUNT(*) AS employeeCount FROM employee GROUP BY gender";
+            PreparedStatement preparedStatement = getPreparedStatement(sqlQuery);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                String gender = resultSet.getString("gender");
+                double totalSalary = resultSet.getDouble("totalSalary");
+                double avgSalary = resultSet.getDouble("avgSalary");
+                double minSalary = resultSet.getDouble("minSalary");
+                double maxSalary = resultSet.getDouble("maxSalary");
+                int employeeCount = resultSet.getInt("employeeCount");
+
+                System.out.println("Gender: " + gender);
+                System.out.println("Total Salary: " + totalSalary);
+                System.out.println("Average Salary: " + avgSalary);
+                System.out.println("Min Salary: " + minSalary);
+                System.out.println("Max Salary: " + maxSalary);
+                System.out.println("Employee Count: " + employeeCount);
+                System.out.println("------------------------");
+
+                // Store results in the map
+                analysisResults.put(gender, totalSalary);
+                analysisResults.put("avg_" + gender, avgSalary);
+                analysisResults.put("min_" + gender, minSalary);
+                analysisResults.put("max_" + gender, maxSalary);
+                analysisResults.put("count_" + gender, (double) employeeCount);
+            }
+        } catch (SQLException e) {
+            throw new CustomDatabaseException("Error analyzing employee payroll data", e);
+        }
+
+        return analysisResults;
+    }
     /**
      * @desc: Displays employee payroll data.
      * @params: employeePayrollList - List of EmployeePayroll objects
@@ -231,13 +276,20 @@ public class employee_payroll {
     	        System.out.println("Updated Employee Payroll Data:");
     	        displayEmployeePayroll(updatedEmployeePayroll);
 
-    	        // Retrieve and display employees by date range
-    	        LocalDate startDate = LocalDate.of(2023, 1, 1);
-    	        LocalDate endDate = LocalDate.of(2023, 12, 31);
-    	        List<EmployeePayroll> employeesByDateRange = retrieveEmployeesByDateRange(startDate, endDate);
-    	        System.out.println("Employee Payroll Data for Date Range (2020-01-01 to 2023-12-31):");
-    	        displayEmployeePayroll(employeesByDateRange);
+//    	        // Retrieve and display employees by date range
+//    	        LocalDate startDate = LocalDate.of(2023, 1, 1);
+//    	        LocalDate endDate = LocalDate.of(2023, 12, 31);
+//    	        List<EmployeePayroll> employeesByDateRange = retrieveEmployeesByDateRange(startDate, endDate);
+//    	        System.out.println("Employee Payroll Data for Date Range (2020-01-01 to 2023-12-31):");
+//    	        displayEmployeePayroll(employeesByDateRange);
+    	     // Analyze employee payroll data
+    	        Map<String, Double> analysisResults = analyzeEmployeePayroll();
 
+    	        // Display analysis results
+    	        System.out.println("Analysis Results:");
+    	        for (Map.Entry<String, Double> entry : analysisResults.entrySet()) {
+    	            System.out.println(entry.getKey() + ": " + entry.getValue());
+    	        }
     	    } catch (CustomDatabaseException e) {
     	        e.printStackTrace();
     	    }
